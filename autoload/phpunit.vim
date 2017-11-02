@@ -1,9 +1,3 @@
-
-
-highlight PHPUnitFail guibg=Red ctermbg=Red guifg=White ctermfg=White
-highlight PHPUnitOK guibg=Green ctermbg=Green guifg=Black ctermfg=Black
-highlight PHPUnitAssertFail guifg=LightRed ctermfg=LightRed
-
 " root of unit tests
 if !exists('g:phpunit_testroot')
   let g:phpunit_testroot = 'tests'
@@ -81,16 +75,6 @@ fun! g:PHPUnit.OpenBuffer(content)
   setlocal nobuflisted cursorline nonumber nowrap buftype=nofile filetype=phpunit modifiable bufhidden=hide
   setlocal noswapfile
   silent put=a:content
-  "efm=%E%\\d%\\+)\ %m,%CFailed%m,%Z%f:%l,%-G
-  " FIXME: It is better use match(), or :syntax
-
-  call matchadd("PHPUnitFail","^FAILURES.*$")
-  call matchadd("PHPUnitOK","^OK .*$")
-
-  call matchadd("PHPUnitFail","^not ok .*$")
-  call matchadd("PHPUnitOK","^ok .*$")
-
-  call matchadd("PHPUnitAssertFail","^Failed asserting.*$")
   setlocal nomodifiable
 
   wincmd p
