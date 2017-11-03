@@ -49,6 +49,9 @@ fun! g:PHPUnit.Run(cmd, title)
   silent call g:PHPUnit.OpenBuffer(output)
 endfun
 
+" *************************************************
+" ------------------ Open Buffer ------------------
+" *************************************************
 fun! g:PHPUnit.OpenBuffer(content)
   " is there phpunit_buffer?
   if exists('g:phpunit_buffer') && bufexists(g:phpunit_buffer)
