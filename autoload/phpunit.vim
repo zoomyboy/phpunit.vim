@@ -40,9 +40,10 @@ endfun
 " *************************************************
 " ------------------ Open Buffer ------------------
 " *************************************************
-fun! g:PHPUnit.OpenBuffer(cmd, title)
+fun! g:PHPUnit.OpenBuffer(cmd, title, file)
   let g:phpunitcommand = join(a:cmd," ")
   let g:phpunittitle = a:title
+  let g:phpunitshowfile = a:file
 
   " is there phpunit_buffer?
   if exists('g:phpunit_buffer') && bufexists(g:phpunit_buffer)
@@ -66,7 +67,7 @@ fun! g:PHPUnit.OpenBuffer(cmd, title)
 
   file PHPUnit
   " exec 'file Diff-' . file
-  setlocal nobuflisted noswapfile nonumber nowrap buftype=nofile  modifiable bufhidden=hide
+  setlocal nobuflisted noswapfile nonumber buftype=nofile  modifiable bufhidden=hide
   nmap <buffer> <esc> :q!<cr>
 
 python3 << EOF
@@ -87,7 +88,11 @@ for line in p.stdout:
     if line.isspace(): continue
 
     if line.startswith("Starting test") and line.find("::"):
-        vim.current.buffer.append('R '+line.split("::")[1][0:-3])
+        if vim.vars['phpunitshowfile'] == 1:
+            fname = line[15:][0:-3]
+        else:
+            fname = line.split("::")[1][0:-3]
+        vim.current.buffer.append('R '+fname)
         l += 1
         runningTest = True
     elif line.startswith("Time:"):
@@ -118,18 +123,18 @@ fun! g:PHPUnit.RunAll()
   let cmd = g:PHPUnit.buildBaseCommand()
   let cmd = cmd + [expand(g:phpunit_testroot)]
  
-  silent call g:PHPUnit.OpenBuffer(cmd, "RunAll") 
+  silent call g:PHPUnit.OpenBuffer(cmd, "RunAll", 1) 
 endfun
 
 fun! g:PHPUnit.RunCurrentFile()
   let cmd = g:PHPUnit.buildBaseCommand()
   let cmd = cmd +  [bufname("%")]
-  silent call g:PHPUnit.OpenBuffer(cmd, bufname("%")) 
+  silent call g:PHPUnit.OpenBuffer(cmd, bufname("%"), 0) 
 endfun
 fun! g:PHPUnit.RunTestCase(filter)
   let cmd = g:PHPUnit.buildBaseCommand()
   let cmd = cmd + ["--filter", a:filter , bufname("%")]
-  silent call g:PHPUnit.OpenBuffer(cmd, bufname("%") . ":" . a:filter) 
+  silent call g:PHPUnit.OpenBuffer(cmd, bufname("%") . ":" . a:filter, 0) 
 endfun
 
 fun! g:PHPUnit.SwitchFile()
