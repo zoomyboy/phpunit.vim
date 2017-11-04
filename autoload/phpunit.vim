@@ -75,8 +75,7 @@ fun! g:PHPUnit.OpenBuffer(content)
 
   file PHPUnit
   " exec 'file Diff-' . file
-  setlocal nobuflisted cursorline nonumber nowrap buftype=nofile  modifiable bufhidden=hide
-  setlocal noswapfile
+  setlocal nobuflisted noswapfile nonumber nowrap buftype=nofile  modifiable bufhidden=hide
   silent put=a:content
   setlocal nomodifiable
 
