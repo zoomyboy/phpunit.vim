@@ -66,6 +66,7 @@ fun! g:PHPUnit.OpenBuffer(cmd, title)
   file PHPUnit
   " exec 'file Diff-' . file
   setlocal nobuflisted noswapfile nonumber nowrap buftype=nofile  modifiable bufhidden=hide
+  nmap <buffer> <esc> :q!<cr>
 
 python3 << EOF
 import vim
