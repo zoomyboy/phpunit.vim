@@ -131,6 +131,18 @@ fun! g:PHPUnit.RunCurrentFile()
   let cmd = cmd +  [bufname("%")]
   silent call g:PHPUnit.OpenBuffer(cmd, bufname("%"), 0) 
 endfun
+fun! g:PHPUnit.RunStickyFile()
+  " Set current filename if there's none
+  if (!exists('g:phpunit_file'))
+    let g:phpunit_file = expand("%")
+  endif
+  let cmd = g:PHPUnit.buildBaseCommand()
+  let cmd = cmd +  [g:phpunit_file]
+  silent call g:PHPUnit.OpenBuffer(cmd, g:phpunit_file, 0) 
+endfun
+fun! g:PHPUnit.DeleteStickyFile()
+  unlet g:phpunit_file
+endfun
 fun! g:PHPUnit.RunTestCase(filter)
   let cmd = g:PHPUnit.buildBaseCommand()
   let cmd = cmd + ["--filter", a:filter , bufname("%")]
@@ -172,9 +184,13 @@ endf
 
 command! -nargs=0 PHPUnitRunAll :call g:PHPUnit.RunAll()
 command! -nargs=0 PHPUnitRunCurrentFile :call g:PHPUnit.RunCurrentFile()
+command! -nargs=0 PHPUnitRunStickyFile :call g:PHPUnit.RunStickyFile()
+command! -nargs=0 PHPUnitDeleteStickyFile :call g:PHPUnit.DeleteStickyFile()
 command! -nargs=1 PHPUnitRunFilter :call g:PHPUnit.RunTestCase(<f-args>)
 command! -nargs=0 PHPUnitSwitchFile :call g:PHPUnit.SwitchFile()
 
 nnoremap <Leader>ta :PHPUnitRunAll<CR>
 nnoremap <Leader>tf :PHPUnitRunCurrentFile<CR>
-nnoremap <Leader>ts :PHPUnitSwitchFile<CR>
+nnoremap <Leader>ts :PHPUnitRunStickyFile<CR>
+nnoremap <Leader>t<space> :PHPUnitDeleteStickyFile<CR>
+nnoremap <Leader>tw :PHPUnitSwitchFile<CR>
