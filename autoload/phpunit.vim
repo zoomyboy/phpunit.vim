@@ -44,6 +44,7 @@ fun! g:PHPUnit.OpenBuffer(cmd, title, file)
   let g:phpunitcommand = join(a:cmd," ")
   let g:phpunittitle = a:title
   let g:phpunitshowfile = a:file
+  echom g:phpunitcommand
 
   " is there phpunit_buffer?
   if exists('g:phpunit_buffer') && bufexists(g:phpunit_buffer)
@@ -126,22 +127,36 @@ fun! g:PHPUnit.RunAll()
   silent call g:PHPUnit.OpenBuffer(cmd, "RunAll", 1) 
 endfun
 
-fun! g:PHPUnit.RunCurrentFile()
-  let cmd = g:PHPUnit.buildBaseCommand()
-  let cmd = cmd +  [bufname("%")]
-  silent call g:PHPUnit.OpenBuffer(cmd, bufname("%"), 0) 
-endfun
 fun! g:PHPUnit.RunStickyFile()
   " Set current filename if there's none
-  if (!exists('g:phpunit_file'))
-    let g:phpunit_file = expand("%")
+  if (!exists('g:phpunit_f_file'))
+    let g:phpunit_f_file = expand("%")
   endif
   let cmd = g:PHPUnit.buildBaseCommand()
-  let cmd = cmd +  [g:phpunit_file]
-  silent call g:PHPUnit.OpenBuffer(cmd, g:phpunit_file, 0) 
+  let cmd = cmd +  [g:phpunit_f_file]
+  silent call g:PHPUnit.OpenBuffer(cmd, g:phpunit_f_file, 0) 
 endfun
-fun! g:PHPUnit.DeleteStickyFile()
-  unlet g:phpunit_file
+fun! g:PHPUnit.RunStickyMethod()
+  " Set current method if there's none
+  if (!exists('g:phpunit_m_file'))
+    let g:phpunit_m_file = expand("%")
+  endif
+  if (!exists('g:phpunit_m_method'))
+	normal mo[mF(hviw"oy`o
+    let g:phpunit_m_method = @o
+  endif
+  let cmd = g:PHPUnit.buildBaseCommand()
+  let cmd = cmd + ['--filter='.g:phpunit_m_method, g:phpunit_m_file]
+  silent call g:PHPUnit.OpenBuffer(cmd, g:phpunit_m_file, 0) 
+endfun
+fun! g:PHPUnit.DeleteSticky()
+	if exists('g:phpunit_f_file')
+      unlet g:phpunit_f_file
+    endif
+	if exists('g:phpunit_m_method')
+      unlet g:phpunit_m_method
+      unlet g:phpunit_m_file
+    endif
 endfun
 fun! g:PHPUnit.RunTestCase(filter)
   let cmd = g:PHPUnit.buildBaseCommand()
@@ -183,14 +198,14 @@ fun! g:PHPUnit.SwitchFile()
 endf
 
 command! -nargs=0 PHPUnitRunAll :call g:PHPUnit.RunAll()
-command! -nargs=0 PHPUnitRunCurrentFile :call g:PHPUnit.RunCurrentFile()
 command! -nargs=0 PHPUnitRunStickyFile :call g:PHPUnit.RunStickyFile()
-command! -nargs=0 PHPUnitDeleteStickyFile :call g:PHPUnit.DeleteStickyFile()
+command! -nargs=0 PHPUnitRunStickyMethod :call g:PHPUnit.RunStickyMethod()
+command! -nargs=0 PHPUnitDeleteSticky :call g:PHPUnit.DeleteSticky()
 command! -nargs=1 PHPUnitRunFilter :call g:PHPUnit.RunTestCase(<f-args>)
 command! -nargs=0 PHPUnitSwitchFile :call g:PHPUnit.SwitchFile()
 
 nnoremap <Leader>ta :PHPUnitRunAll<CR>
-nnoremap <Leader>tf :PHPUnitRunCurrentFile<CR>
-nnoremap <Leader>ts :PHPUnitRunStickyFile<CR>
-nnoremap <Leader>t<space> :PHPUnitDeleteStickyFile<CR>
-nnoremap <Leader>tw :PHPUnitSwitchFile<CR>
+nnoremap <Leader>tf :PHPUnitRunStickyFile<CR>
+nnoremap <Leader>tm :PHPUnitRunStickyMethod<CR>
+nnoremap <Leader>t<space> :PHPUnitDeleteSticky<CR>
+nnoremap <Leader>ts :PHPUnitSwitchFile<CR>
