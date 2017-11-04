@@ -15,7 +15,7 @@ if !exists('g:phpunit_bin')
 endif
 
 if !exists('g:phpunit_options')
-  let g:phpunit_options = ['--stop-on-failure', '--columns=50'] 
+  let g:phpunit_options = ['--stop-on-failure', '--columns=50', '--debug'] 
 endif
 
 " you can set there subset of tests if you do not want to run
@@ -41,7 +41,7 @@ endfun
 " ------------------ Open Buffer ------------------
 " *************************************************
 fun! g:PHPUnit.OpenBuffer(cmd, title)
-  let content = system(join(a:cmd," "))
+  let g:phpunitcommand = join(a:cmd," ")
 
   " is there phpunit_buffer?
   if exists('g:phpunit_buffer') && bufexists(g:phpunit_buffer)
@@ -66,10 +66,47 @@ fun! g:PHPUnit.OpenBuffer(cmd, title)
   file PHPUnit
   " exec 'file Diff-' . file
   setlocal nobuflisted noswapfile nonumber nowrap buftype=nofile  modifiable bufhidden=hide
-  silent put=content
+
+python3 << EOF
+import vim
+import subprocess
+
+l = 3
+runningTest = False
+vim.current.buffer[0] = "Starting PHPUnit..."
+vim.current.buffer.append("")
+vim.current.buffer.append(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+vim.current.buffer.append("")
+
+p = subprocess.Popen(vim.vars['phpunitcommand'].decode('utf-8'), shell=True, stdout=subprocess.PIPE, universal_newlines=True, bufsize=1)
+
+for line in p.stdout:
+    if line.endswith("by Sebastian Bergmann and contributors.\n"): continue
+    if line.isspace(): continue
+
+    if line.startswith("Starting test") and line.find("::"):
+        vim.current.buffer.append('R '+line.split("::")[1][0:-3])
+        l += 1
+        runningTest = True
+    elif line.startswith("Time:"):
+        vim.current.buffer.append("")
+        vim.current.buffer.append("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+        vim.current.buffer.append("")
+    elif line.startswith('.') and runningTest == True:
+        vim.current.buffer[l] = vim.current.buffer[l].replace("R", "S", 1)
+        runningTest = False
+    elif line.startswith('F') and runningTest == True:
+        vim.current.buffer[l] = vim.current.buffer[l].replace("R", "F", 1)
+        runningTest = False
+    else:
+        vim.current.buffer.append(line)
+        l += 1
+    vim.command('redraw')
+    vim.command('syntax sync fromstart')
+EOF
+
   setlocal nomodifiable
 
-  wincmd p
 endfun
 
 
