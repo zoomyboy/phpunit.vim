@@ -37,22 +37,11 @@ fun! g:PHPUnit.buildBaseCommand()
   return cmd
 endfun
 
-fun! g:PHPUnit.Run(cmd, title)
-  redraw
-  echohl Title
-  echomsg "* Running PHP Unit test(s) [" . a:title . "] *"
-  echohl None
-  redraw
-  echomsg "* Done PHP Unit test(s) [" . a:title . "] *"
-  echohl None
-  silent call g:PHPUnit.OpenBuffer(cmd)
-endfun
-
 " *************************************************
 " ------------------ Open Buffer ------------------
 " *************************************************
-fun! g:PHPUnit.OpenBuffer(cmd)
-  let content = system(join(a:cmd," ")
+fun! g:PHPUnit.OpenBuffer(cmd, title)
+  let content = system(join(a:cmd," "))
 
   " is there phpunit_buffer?
   if exists('g:phpunit_buffer') && bufexists(g:phpunit_buffer)
@@ -77,7 +66,7 @@ fun! g:PHPUnit.OpenBuffer(cmd)
   file PHPUnit
   " exec 'file Diff-' . file
   setlocal nobuflisted noswapfile nonumber nowrap buftype=nofile  modifiable bufhidden=hide
-  silent put=a:content
+  silent put=content
   setlocal nomodifiable
 
   wincmd p
@@ -90,18 +79,18 @@ fun! g:PHPUnit.RunAll()
   let cmd = g:PHPUnit.buildBaseCommand()
   let cmd = cmd + [expand(g:phpunit_testroot)]
  
-  silent call g:PHPUnit.Run(cmd, "RunAll") 
+  silent call g:PHPUnit.OpenBuffer(cmd, "RunAll") 
 endfun
 
 fun! g:PHPUnit.RunCurrentFile()
   let cmd = g:PHPUnit.buildBaseCommand()
   let cmd = cmd +  [bufname("%")]
-  silent call g:PHPUnit.Run(cmd, bufname("%")) 
+  silent call g:PHPUnit.OpenBuffer(cmd, bufname("%")) 
 endfun
 fun! g:PHPUnit.RunTestCase(filter)
   let cmd = g:PHPUnit.buildBaseCommand()
   let cmd = cmd + ["--filter", a:filter , bufname("%")]
-  silent call g:PHPUnit.Run(cmd, bufname("%") . ":" . a:filter) 
+  silent call g:PHPUnit.OpenBuffer(cmd, bufname("%") . ":" . a:filter) 
 endfun
 
 fun! g:PHPUnit.SwitchFile()
