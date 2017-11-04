@@ -42,6 +42,7 @@ endfun
 " *************************************************
 fun! g:PHPUnit.OpenBuffer(cmd, title)
   let g:phpunitcommand = join(a:cmd," ")
+  let g:phpunittitle = a:title
 
   " is there phpunit_buffer?
   if exists('g:phpunit_buffer') && bufexists(g:phpunit_buffer)
@@ -74,7 +75,7 @@ import subprocess
 
 l = 3
 runningTest = False
-vim.current.buffer[0] = "Starting PHPUnit..."
+vim.current.buffer[0] = vim.vars['phpunittitle']
 vim.current.buffer.append("")
 vim.current.buffer.append(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 vim.current.buffer.append("")
