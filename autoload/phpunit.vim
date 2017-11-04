@@ -45,14 +45,15 @@ fun! g:PHPUnit.Run(cmd, title)
   redraw
   echomsg "* Done PHP Unit test(s) [" . a:title . "] *"
   echohl None
-  let output = system(join(a:cmd," "))
-  silent call g:PHPUnit.OpenBuffer(output)
+  silent call g:PHPUnit.OpenBuffer(cmd)
 endfun
 
 " *************************************************
 " ------------------ Open Buffer ------------------
 " *************************************************
-fun! g:PHPUnit.OpenBuffer(content)
+fun! g:PHPUnit.OpenBuffer(cmd)
+  let content = system(join(a:cmd," ")
+
   " is there phpunit_buffer?
   if exists('g:phpunit_buffer') && bufexists(g:phpunit_buffer)
     let phpunit_win = bufwinnr(g:phpunit_buffer)
