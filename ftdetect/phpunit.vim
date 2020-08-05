@@ -1,5 +1,6 @@
-autocmd BufFilePost * call g:PHPUnit.SetFiletype()
-fun! g:PHPUnit.SetFiletype()
+autocmd BufFilePost * call s:setFiletype()
+
+fun! s:setFiletype()
 	if expand("%") == "PHPUnit"
 		set filetype=phpunit
 	endif
